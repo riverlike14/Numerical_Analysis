@@ -23,7 +23,7 @@ fig = plt.figure(figsize=(5, 5))
 ax = fig.add_subplot(111, autoscale_on=False, xlim=(-2, 2), ylim=(-2, 2))
 ax.grid()
 
-mass, = ax.plot([], [], 'o', lw=2)
+mass, = ax.plot([], [], '-o', lw=2)
 time_template = 'time = %.1fs'
 time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
 
@@ -44,39 +44,19 @@ def Trapezoid_method(f, a, b, h, y_0):
 
 ################################################################################################
 
-m1 = 1
-m2 = 1
-m3 = 1
-g = 1
-
-y_01 = (-0.970, 0.243) + (-0.466, -0.433)
-y_02 = (0.970, -0.243) + (-0.466, -0.433)
-y_03 = (0, 0) + (0.932, 0.866)
-y_0 = y_01 + y_02 + y_03
+d = 0.1
 
 def f(t, y):
-    x1, y1, v1x, v1y, x2, y2, v2x, v2y , x3, y3, v3x, v3y = y
-    
-    P1 = (x1, y1, m1)
-    P2 = (x2, y2, m2)
-    P3 = (x3, y3, m3)
-    
-    def force(P1, P2, position):
-        x1, y1, m1 = P1
-        x2, y2, m2 = P2
-        if position == 'x':
-            return g*m2*(x2 - x1) / sqrt((x2 - x1)**2 + (y2 - y1)**2)**3
-        elif position == 'y':
-            return g*m2*(y2 - y1) / sqrt((x2 - x1)**2 + (y2 - y1)**2)**3
-    
-    f1 = [v1x, v1y, force(P1, P2, 'x') + force(P1, P3, 'x'), force(P1, P2, 'y') + force(P1, P3, 'y')]
-    f2 = [v2x, v2y, force(P2, P3, 'x') + force(P2, P1, 'x'), force(P2, P3, 'y') + force(P2, P1, 'y')]
-    f3 = [v3x, v3y, force(P3, P1, 'x') + force(P3, P2, 'x'), force(P3, P1, 'y') + force(P3, P2, 'y')]
-    
-    return np.array(f1 + f2 + f3)
+    y1, y2 = y
+    g = 9.81
+    l = 1
+    return np.array([y2, -g/l*sin(y1) - d*y2])
+
+y_0 = (pi, 1)
+
 
 t, y = Trapezoid_method(f, a, b, h, y_0)
-x1, y1, _, _, x2, y2, _, _, x3, y3, _, _ = y
+x1, y1 = y
 
 ################################################################################################
 
@@ -86,9 +66,9 @@ def init():
     return mass, time_text
 
 def animate(i):
-    thisx = [x1[i], x2[i], x3[i]]
-    thisy = [y1[i], y2[i], y3[i]]
-    
+    thisx = [0, sin(x1[i])]
+    thisy = [0, -cos(x1[i])]
+
     mass.set_data(thisx, thisy)
     time_text.set_text(time_template % (i*h))
     return mass, time_text
